@@ -14,8 +14,8 @@ class Friend extends Model
      *  id: int,
      *  user_id: int,
      *  friend_id: int,
+     *  point: int,
      *  created_at: date,
-     *  updated_at: date,
      *  }
      */
 
@@ -24,6 +24,8 @@ class Friend extends Model
         'friend_id',
         'point'
     ];
+
+    const UPDATED_AT = null;
 
     public static function CreateFriend($request)
     {
@@ -46,31 +48,56 @@ class Friend extends Model
         $friend->save();
     }
 
-    public static function GetFriend($request)
+    public static function GetFriends($request)
     {
         /**
-         * friends = {
+         * friend = {
          * id: int,
          * friend_id: int,
          * friend_name: string,
-         * updated_at: date,
+         * follower_id: int,
+         * created_at: date,
          * }
          */ 
-        $friends = Friend::select('id', 'friend_id', 'updated_at')->where('user_id', $request->user_id)->get();
+        $friends = Friend::where('user_id', $request->userId)->get();
         foreach ($friends as $friend) {
-            $friend->friend_name = User::GetUserNameFromId($friend->friend_id);
+            $friend->friend_name = User::where('id', $friend->friend_id)->first()->name;
+            $friend->follower_id = Friend::where('user_id', $friend->friend_id)->where('friend_id', $request->userId)->first()->id;
         }
         return $friends;
     }
 
     public static function GetPoint($request)
     {
-        $friend = Friend::where('user_id', $request->user_id)->where('friend_id', User::GetUserIdFromName($request->friend_name))->first();
-        return $friend->point;
+        $point = Friend::select('point')->where('id', $request->friendId)->first()->point;
+        return $point;
+    }
+
+    public static function Follow($request)
+    {
+        // follow_codeをもとにfriend_idを取得
+        $friend_id = User::where('follow_code', $request->followCode)->first()->id;
+
+        $friend = new Friend();
+        $friend->user_id = $request->userId;
+        $friend->friend_id = $friend_id;
+        $friend->point = 0;
+        $friend->save();
+
+        $friend = new Friend();
+        $friend->user_id = $friend_id;
+        $friend->friend_id = $request->userId;
+        $friend->point = 0;
+        $friend->save();
     }
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
     }
 }

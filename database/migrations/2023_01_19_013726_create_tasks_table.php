@@ -15,13 +15,14 @@ class CreateTasksTable extends Migration
     {
         Schema::create('tasks', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('friend_id')->constrained('users');
+            $table->foreignId('friend_id')->references('id')->on('friends')->cascadeOnDelete();
             $table->string('title');
             $table->string('description');
-            $table->integer('weight');
-            $table->date('deadline');
+            $table->integer('point');
+            $table->date('deadline')->nullable();
             $table->string('status');
+            $table->boolean('sale');
+            $table->timestamps();
         });
     }
 

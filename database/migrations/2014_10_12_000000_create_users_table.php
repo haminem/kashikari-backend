@@ -16,7 +16,10 @@ class CreateUsersTable extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('password');
+            $table->string('follow_code')->unique();
             $table->timestamps();
+            $table->dropColumn('updated_at');
         });
     }
 

@@ -19,73 +19,87 @@ class Task extends Model
     /*
     * Task: {
     *  id: int,
+    *  friend_id: int,
     *  title: string,
     *  description: string,
-    *  weight: int,
+    *  point: int,
     *  deadline: date,
     *  status: string,
+    *  sale: bool,
+    *  created_at: date,
+    *  updated_at: date,
     *  }
     */
 
     protected $fillable = [
-        'user_id',
         'friend_id',
         'title',
         'description',
-        'weight',
-        'deadline',
+        'point',
         'status',
+        'sale'
     ];
 
-    public static function CreateTask($request)
+    public static function SetTask($request)
     {
         $task = new Task();
-        $task->user_id = $request->user_id;
-        $task->friend_id = User::GetUserIdFromName($request->friend_name);
+        $task->friend_id = $request->friendId;
         $task->title = $request->title;
         $task->description = $request->description;
-        $task->weight = $request->weight;
+        $task->point = $request->point;
         $task->deadline = $request->deadline;
-        $task->status = "依頼中";
+        $task->status = "suggest";
+        $task->sale = $request->sale;
         $task->save();
     }
 
-    public function user()
+    public static function GetTasks($request)
     {
-        return $this->belongsTo(User::class);
-    }
-
-    public static function GetTask($request)
-    {
-        $tasks = Task::where('user_id', $request->user_id)->get();
+        $tasks = Task::where('friend_id', $request->friendId)->get();
         return $tasks;
     }
 
-    public static function GetTasksByFriend($request)
+    public static function FindByFriendId($friend_id)
     {
-        $tasks = Task::where('user_id', $request->user_id)->where('friend_id', User::GetUserIdFromName($request->friend_name))->get();
+        $tasks = Task::where('friend_id', $friend_id)->get();
         return $tasks;
     }
 
-    public static function GetTasksByMe($request)
+    public static function UpdateTask($request)
     {
-        $tasks = Task::where('user_id', User::GetUserIdFromName($request->friend_name))->where('friend_id', $request->user_id)->get();
-        return $tasks;
-    }
-
-    public static function UpdateTaskStatus($request)
-    {
-        if ($request->status == "完了済") {
-            $task = Task::where('id', $request->task_id)->first();
-            $task->status = $request->status;
+        $task = Task::where('id', $request->taskId)->first();
+        if ($request->status == "suggest") {
+            // if($task->sale == true) {
+            //     $task->sale = false;
+            //     $friend_id = $task->friend_id;
+            //     $temp = Friend::where('id', $friend_id)->first();
+            //     $friend = Friend::where('user_id', $temp->friend_id)->where('friend_id', $temp->user_id)->first();
+            //     $friend->point -= $task->point;
+            //     $friend->save();
+            // };
+            $task->status = "progress";
             $task->save();
-            $friend = Friend::where('user_id', $request->user_id)->where('friend_id', User::GetUserIdFromName($request->friend_name))->first();
-            $friend->point += $task->weight;
-            $friend->save();
-        } else {
-            $task = Task::where('id', $request->task_id)->first();
-            $task->status = $request->status;
+        } else if ($request->status == "progress") {
+            $task->status = "done";
             $task->save();
+            $friend_id = $task->friend_id;
+            if ($task->sale == true) {
+                $temp = Friend::where('id', $friend_id)->first();
+                $friend = Friend::where('user_id', $temp->friend_id)->where('friend_id', $temp->user_id)->first();
+                $friend->point -= $task->point;
+                $friend->save();
+            } else {
+                $friend = Friend::where('id', $friend_id)->first();
+                $friend->point += $task->point;
+                $friend->save();
+            }
+        } else if ($request->status == "reject") {
+            $task->delete();
         }
+    }
+
+    public function friend()
+    {
+        return $this->belongsTo(Friend::class);
     }
 }

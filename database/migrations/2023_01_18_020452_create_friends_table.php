@@ -19,6 +19,7 @@ class CreateFriendsTable extends Migration
             $table->foreignId('friend_id')->constrained('users');
             $table->integer('point');
             $table->timestamps();
+            $table->dropColumn('updated_at');
         });
     }
 

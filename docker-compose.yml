@@ -1,6 +1,24 @@
 # For more information: https://laravel.com/docs/sail
 version: '3'
 services:
+    nginx:
+        image: 'nginx:latest'
+        ports:
+            - '${HTTP_PORT:-8000}:80'
+            - '${SSL_PORT:-443}:443'
+        environment:
+            - SSL_PORT=${SSL_PORT:-443}
+            - APP_SERVICE=${APP_SERVICE:-laravel.test}
+            - SERVER_NAME=${SERVER_NAME:-localhost}
+        volumes:
+            - 'sail-nginx:/etc/nginx/certs'
+            - ./conf.d:/etc/nginx/conf.d
+            - /etc/letsencrypt/live/kashikariapi.haltokyo.live/fullchain.pem:/etc/nginx/ssl/server.crt
+            - /etc/letsencrypt/live/kashikariapi.haltokyo.live/privkey.pem:/etc/nginx/ssl/server.key
+        depends_on:
+            - ${APP_SERVICE:-laravel.test}
+        networks:
+            - sail
     laravel.test:
         build:
             context: ./vendor/laravel/sail/runtimes/8.2
@@ -24,10 +42,6 @@ services:
             - sail
         depends_on:
             - mysql
-            - redis
-            - meilisearch
-            - mailhog
-            - selenium
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
@@ -48,52 +62,11 @@ services:
             test: ["CMD", "mysqladmin", "ping", "-p${DB_PASSWORD}"]
             retries: 3
             timeout: 5s
-    redis:
-        image: 'redis:alpine'
-        ports:
-            - '${FORWARD_REDIS_PORT:-6379}:6379'
-        volumes:
-            - 'sail-redis:/data'
-        networks:
-            - sail
-        healthcheck:
-            test: ["CMD", "redis-cli", "ping"]
-            retries: 3
-            timeout: 5s
-    meilisearch:
-        image: 'getmeili/meilisearch:latest'
-        ports:
-            - '${FORWARD_MEILISEARCH_PORT:-7700}:7700'
-        volumes:
-            - 'sail-meilisearch:/meili_data'
-        networks:
-            - sail
-        healthcheck:
-            test: ["CMD", "wget", "--no-verbose", "--spider",  "http://localhost:7700/health"]
-            retries: 3
-            timeout: 5s
-    mailhog:
-        image: 'mailhog/mailhog:latest'
-        ports:
-            - '${FORWARD_MAILHOG_PORT:-1025}:1025'
-            - '${FORWARD_MAILHOG_DASHBOARD_PORT:-8025}:8025'
-        networks:
-            - sail
-    selenium:
-        image: 'selenium/standalone-chrome'
-        extra_hosts:
-            - 'host.docker.internal:host-gateway'
-        volumes:
-            - '/dev/shm:/dev/shm'
-        networks:
-            - sail
 networks:
     sail:
         driver: bridge
 volumes:
+    sail-nginx:
+        driver: local
     sail-mysql:
-        driver: local
-    sail-redis:
-        driver: local
-    sail-meilisearch:
         driver: local

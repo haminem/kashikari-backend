@@ -15,32 +15,29 @@ use App\Http\Controllers\ApiController;
 |
 */
 
-Route::get('/register_user', [ApiController::class, 'register_user']);
-Route::post('/register_user', [ApiController::class, 'register_user']);
+// Route::get('/sign_in', [ApiController::class, 'sign_in']);
+Route::post('/sign_in', [ApiController::class, 'sign_in']);
 
-Route::get('/register_task', [ApiController::class, 'register_task']);
-Route::post('/register_task', [ApiController::class, 'register_task']);
+// Route::get('/sign_up', [ApiController::class, 'sign_up']);
+Route::post('/sign_up', [ApiController::class, 'sign_up']);
 
-Route::get('/get_tasks', [ApiController::class, 'get_tasks']);
+// Route::get('/get_user', [ApiController::class, 'get_user']);
+Route::post('/get_user', [ApiController::class, 'get_user']);
+
+// Route::get('/get_friends', [ApiController::class, 'get_friends']);
+Route::post('/get_friends', [ApiController::class, 'get_friends']);
+
+// Route::get('/get_tasks', [ApiController::class, 'get_tasks']);
 Route::post('/get_tasks', [ApiController::class, 'get_tasks']);
 
-Route::get('/get_tasks_by_friend', [ApiController::class, 'get_tasks_by_friend']);
-Route::post('/get_tasks_by_friend', [ApiController::class, 'get_tasks_by_friend']);
+// Route::get('/set_task', [ApiController::class, 'set_task']);
+Route::post('/set_task', [ApiController::class, 'set_task']);
 
-Route::get('/get_tasks_by_me', [ApiController::class, 'get_tasks_by_me']);
-Route::post('/get_tasks_by_me', [ApiController::class, 'get_tasks_by_me']);
+// Route::get('/update_task', [ApiController::class, 'update_task']);
+Route::post('/update_task', [ApiController::class, 'update_task']);
 
-Route::get('/get_point', [ApiController::class, 'get_point']);
+// Route::get('/get_point', [ApiController::class, 'get_point']);
 Route::post('/get_point', [ApiController::class, 'get_point']);
 
-Route::get('/update_task_status', [ApiController::class, 'update_task_status']);
-Route::post('/update_task_status', [ApiController::class, 'update_task_status']);
-
-Route::get('/login', [ApiController::class, 'login']);
-Route::post('/login', [ApiController::class, 'login']);
-
-Route::get('/register_friend', [ApiController::class, 'register_friend']);
-Route::post('/register_friend', [ApiController::class, 'register_friend']);
-
-Route::get('/get_friends', [ApiController::class, 'get_friends']);
-Route::post('/get_friends', [ApiController::class, 'get_friends']);
+// Route::get('/follow', [ApiController::class, 'follow']);
+Route::post('/follow', [ApiController::class, 'follow']);
